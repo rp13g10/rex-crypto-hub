@@ -1,13 +1,40 @@
 version: "3.8"
+networks:
+    cassandra
 services:
-    db:
-        image: cassandra:3.11
+    rcdb:
+        image: postgres:13.2
+        restart: always
+        container_name: rcdb
+        hostname: rcdb
+        networks:
+            - rcnet
         ports:
-            - 7000:7000
-        working_dir: /rcdb
+            - 5432:5432
         volumes:
-            - rcdb-data:/var/lib/cassandra
+            - "rcdb-data:/var/lib/postgresql/data"
         environment:
-            CASSANDRA_CLUSTER_NAME: rcdb
+            POSTGRES_USER: rcdb_super
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: rcdb
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin
+        networks:
+            - rcnet
+        ports:
+            - 5050:80
+        volumes:
+            - "pgadmin-config:/var/lib/pgadmin"
+            - "pgadmin-servers:/pgadmin4"
+        environment:
+            PGADMIN_DEFAULT_EMAIL: pgadmin_super
+            PGADMIN_DEFAULT_PASSWORD: postgres
+        depends_on:
+            - rcdb
+networks:
+    rcnet:
 volumes:
     rcdb-data:
+    pgadmin-config:
+    pgadmin-servers:
