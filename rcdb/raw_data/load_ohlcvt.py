@@ -2,6 +2,7 @@ import pandas as pd
 import re
 import sqlalchemy as sql
 from glob import glob
+from tqdm import tqdm
 
 # Get a list of data files
 all_files = glob('Kraken_OHLCVT/*.csv')
@@ -13,7 +14,7 @@ all_pairs = set(re.search(r'(\w+)_\d+\.csv', x).group(1) for x in all_files)
 rcdb = sql.create_engine('postgresql+psycopg2://rcdb_super:postgres@localhost:5432/rcdb')
 
 # Load one currency pair at a time to limit memory usage
-for inx, pair in enumerate(all_pairs):
+for inx, pair in tqdm(list(enumerate(all_pairs))):
 
     # Work out which currencies are being dealt with
     cur_from = pair[:-3]
